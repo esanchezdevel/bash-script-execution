@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Script Executor</title>
+</head>
+<body>
+    <h1>Ejecutar Script</h1>
+    
+    <!-- Formulario para enviar parámetros -->
+    <form id="scriptForm">
+        <label for="param1">Parámetro 1:</label>
+        <input type="text" id="param1" name="param1" required>
+        <br><br>
+        <label for="param2">Parámetro 2:</label>
+        <input type="text" id="param2" name="param2" required>
+        <br><br>
+        <button type="submit">Ejecutar Script</button>
+    </form>
+
+    <h2>Output del Script:</h2>
+    <div id="output"></div>
+
+    <script>
+        const outputDiv = document.getElementById('output');
+        const form = document.getElementById('scriptForm');
+
+        // Manejar el envío del formulario
+        form.addEventListener('submit', function(event) {
+            event.preventDefault(); // Prevenir el comportamiento por defecto del formulario
+            outputDiv.innerHTML = ''; // Limpiar el output previo
+            
+            const param1 = document.getElementById('param1').value;
+            const param2 = document.getElementById('param2').value;
+
+            // Enviar los parámetros al servidor para ejecutar el script
+            fetch('/start-script', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ param1, param2 })
+            }).then(response => {
+                if (response.ok) {
+                    // Iniciar la conexión SSE para recibir el output en tiempo real
+                    const eventSource = new EventSource('/execute');
+
+                    eventSource.onmessage = function(event) {
+                        const newLine = document.createElement('div');
+                        newLine.textContent = event.data;
+                        outputDiv.appendChild(newLine); // Mostrar el output en la página
+                    };
+
+                    eventSource.onerror = function(err) {
+                        console.error("Error en SSE:", err);
+                        eventSource.close();
+                    };
+                } else {
+                    outputDiv.innerHTML = 'Error al iniciar el script';
+                }
+            }).catch(error => {
+                outputDiv.innerHTML = 'Error en la solicitud';
+                console.error('Error:', error);
+            });
+        });
+    </script>
+</body>
+</html>
