@@ -7,16 +7,7 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import com.esanchez.devel.domain.services.BashService;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
 import java.util.Map;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 @RestController
 public class ApiController {
